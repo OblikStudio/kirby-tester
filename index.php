@@ -2,9 +2,9 @@
 
 namespace Oblik\KirbyTester;
 
-function config($name = null)
+function config(string $base, $name = null)
 {
-    $rootNames = array_keys(include 'kirby/config/roots.php');
+    $rootNames = array_keys(include "$base/kirby/config/roots.php");
     $roots = [];
 
     if ((empty($name) || PHP_SAPI === 'cli')) {
@@ -19,7 +19,7 @@ function config($name = null)
         if (preg_match('!^[.\\/\\\]!', $name)) {
             $dirTests = realpath($name);
         } else {
-            $dirTests = __DIR__ . "/site/plugins/$name/tests";
+            $dirTests = "$base/site/plugins/$name/tests";
         }
 
         $dirRoots = $dirTests . '/roots';
