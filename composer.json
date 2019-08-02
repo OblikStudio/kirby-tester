@@ -1,0 +1,15 @@
+{
+    "name": "oblik/kirby-tester",
+    "description": "Utility for switching Kirby roots while testing.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hristiyan Dodov",
+            "email": "h.dodov@gmail.com"
+        }
+    ],
+    "autoload": {
+      "files": ["index.php"]
+    },
+    "require": {}
+}
