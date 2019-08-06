@@ -5,8 +5,10 @@ simply changes Kirby roots to those defined in your tests folder.
 
 ## Installation
 
+Install the utility in your Kirby installation where you develop your plugins:
+
 ```
-composer require oblik/kirby-tester --dev
+composer require oblik/kirby-tester
 ```
 
 ## Usage
