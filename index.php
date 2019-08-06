@@ -2,6 +2,11 @@
 
 namespace Oblik\KirbyTester;
 
+/**
+ * Returns Kirby roots configuration and includes optional bootstrap script
+ * @param string $base Kirby installation root
+ * @param string|null $name Plugin name or path to tests folder
+ */
 function config(string $base, $name = null)
 {
     $rootNames = array_keys(include "$base/kirby/config/roots.php");
@@ -21,13 +26,11 @@ function config(string $base, $name = null)
         } else {
             $dirTests = "$base/site/plugins/$name/tests";
         }
-
-        $dirRoots = $dirTests . '/roots';
     }
 
     if (!empty($dirTests)) {
         foreach ($rootNames as $root) {
-            $path = $dirRoots . '/' . $root;
+            $path = $dirTests . '/roots/' . $root;
 
             if (file_exists($path)) {
                 $roots[$root] = $path;
@@ -37,7 +40,7 @@ function config(string $base, $name = null)
         $bootstrap = $dirTests . '/bootstrap.php';
 
         if (file_exists($bootstrap)) {
-            include_once $bootstrap;
+            include $bootstrap;
         }
     }
 
