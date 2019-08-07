@@ -24,7 +24,8 @@ function config(string $base, $name = null)
         if (preg_match('!^[.\\/\\\]!', $name)) {
             $dirTests = realpath($name);
         } else {
-            $dirTests = "$base/site/plugins/$name/tests";
+            $dirPlugin = "$base/site/plugins/$name";
+            $dirTests = "$dirPlugin/tests";
         }
     }
 
@@ -36,13 +37,10 @@ function config(string $base, $name = null)
                 $roots[$root] = $path;
             }
         }
-
-        $bootstrap = $dirTests . '/bootstrap.php';
-
-        if (file_exists($bootstrap)) {
-            include $bootstrap;
-        }
     }
+    
+    @include_once $dirPlugin . '/vendor/autoload.php';
+    @include_once $dirTests . '/bootstrap.php';
 
     return [
         'roots' => $roots
