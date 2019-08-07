@@ -2,47 +2,31 @@
 
 namespace Oblik\KirbyTester;
 
-/**
- * Returns Kirby roots configuration and includes optional bootstrap script
- * @param string $base Kirby installation root
- * @param string|null $name Plugin name or path to tests folder
- */
-function config(string $base, $name = null)
-{
-    $rootNames = array_keys(include "$base/kirby/config/roots.php");
-    $roots = [];
+use Kirby;
 
-    if ((empty($name) || PHP_SAPI === 'cli')) {
-        $nameEnv = getenv('KIRBY_PLUGIN');
+$loaded = class_exists('Kirby', false);
+$dirRoot = explode(DIRECTORY_SEPARATOR . 'site' . DIRECTORY_SEPARATOR . 'plugins', __DIR__)[0];
+$dirPlugin = explode(DIRECTORY_SEPARATOR . 'vendor', __DIR__)[0];
+$dirTests = "$dirPlugin/tests";
 
-        if (is_string($nameEnv)) {
-            $name = $nameEnv;
+$roots = [];
+
+if (!empty($dirTests)) {
+    $rootNames = array_keys(include "$dirRoot/kirby/config/roots.php");
+
+    foreach ($rootNames as $root) {
+        $path = $dirTests . '/roots/' . $root;
+
+        if (file_exists($path)) {
+            $roots[$root] = $path;
         }
     }
-
-    if (is_string($name)) {
-        if (preg_match('!^[.\\/\\\]!', $name)) {
-            $dirTests = realpath($name);
-        } else {
-            $dirPlugin = "$base/site/plugins/$name";
-            $dirTests = "$dirPlugin/tests";
-        }
-    }
-
-    if (!empty($dirTests)) {
-        foreach ($rootNames as $root) {
-            $path = $dirTests . '/roots/' . $root;
-
-            if (file_exists($path)) {
-                $roots[$root] = $path;
-            }
-        }
-    }
-    
-    @include_once $dirPlugin . '/vendor/autoload.php';
-    @include_once $dirTests . '/bootstrap.php';
-
-    return [
-        'roots' => $roots
-    ];
 }
+
+if (!$loaded) {
+    require $dirRoot . '/kirby/bootstrap.php';
+}
+
+new Kirby([
+    'roots' => $roots
+]);
