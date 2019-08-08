@@ -31,6 +31,8 @@ namespace {
         if ($loader->dirTests) {
             $loader->findRoots();
             return $loader->init();
+        } else {
+            return null;
         }
     }
 }
