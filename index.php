@@ -1,32 +1,87 @@
 <?php
 
+/**
+ * @todo add option to use it as site dependency, as well as plugin dependency
+ * @todo add bootstrap script load
+ */
+
 namespace Oblik\KirbyTester;
 
 use Kirby;
 
-$loaded = class_exists('Kirby', false);
-$dirRoot = explode(DIRECTORY_SEPARATOR . 'site' . DIRECTORY_SEPARATOR . 'plugins', __DIR__)[0];
-$dirPlugin = explode(DIRECTORY_SEPARATOR . 'vendor', __DIR__)[0];
-$dirTests = "$dirPlugin/tests";
+class Loader
+{
+    public $isKirbyLoaded = false;
+    public $dirVendor;
+    public $dirRoot;
+    public $dirPlugin;
+    public $dirTests;
+    public $roots;
 
-$roots = [];
+    public static function findDir($path, $search)
+    {
+        do {
+            if (realpath($path . $search)) {
+                return $path;
+            }
 
-if (!empty($dirTests)) {
-    $rootNames = array_keys(include "$dirRoot/kirby/config/roots.php");
+            $path = dirname($path);
+        } while ($path !== dirname($path));
 
-    foreach ($rootNames as $root) {
-        $path = $dirTests . '/roots/' . $root;
+        return false;
+    }
 
-        if (file_exists($path)) {
-            $roots[$root] = $path;
+    function __construct()
+    {
+        $this->isKirbyLoaded = class_exists('Kirby', false);
+        $this->dirVendor = $this::findDir(__FILE__, '/autoload.php');
+
+        if ($this->dirVendor) {
+            $this->dirRoot = $this::findDir($this->dirVendor, '/kirby/bootstrap.php');
+            $vendorParent = dirname($this->dirVendor);
+
+            if ($this->dirRoot !== $vendorParent) {
+                $this->dirPlugin = $vendorParent;
+
+                if (file_exists($tests = $this->dirPlugin . '/tests')) {
+                    $this->dirTests = $tests;
+                }
+            }
         }
+    }
+
+    public function findRoots()
+    {
+        $allRoots = @include $this->dirRoot . '/kirby/config/roots.php';
+
+        if (is_array($allRoots)) {
+            $this->roots = null;
+
+            foreach (array_keys($allRoots) as $name) {
+                $root = $this->dirTests . '/roots/' . $name;
+
+                if (file_exists($root)) {
+                    $this->roots[$name] = $root;
+                }
+            }
+        }
+    }
+
+    public function init()
+    {
+        if (!$this->isKirbyLoaded) {
+            require $this->dirRoot . '/kirby/bootstrap.php';
+        }
+
+        return new Kirby([
+            'roots' => $this->roots
+        ]);
     }
 }
 
-if (!$loaded) {
-    require $dirRoot . '/kirby/bootstrap.php';
-}
+$loader = new Loader();
 
-new Kirby([
-    'roots' => $roots
-]);
+if ($loader->dirTests) {
+    $loader->findRoots();
+    $loader->init();
+}
