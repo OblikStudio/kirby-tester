@@ -1,15 +1,20 @@
 {
     "name": "oblik/kirby-tester",
-    "description": "Utility for switching Kirby roots while testing.",
+    "description": "Utility for loading Kirby and switching roots while testing.",
     "license": "MIT",
     "authors": [
         {
             "name": "Hristiyan Dodov",
-            "email": "h.dodov@gmail.com"
+            "email": "h.dodov@gmail.com",
+            "homepage": "https://dodov.me/"
         }
     ],
     "autoload": {
-      "files": ["index.php"]
-    },
-    "require": {}
+        "psr-4": {
+            "Oblik\\KirbyTester\\": "src/"
+        },
+        "files": [
+            "index.php"
+        ]
+    }
 }
