@@ -6,6 +6,9 @@ use Kirby;
 
 class Loader
 {
+    private $config = [
+        'always' => false
+    ];
     public $isKirbyLoaded = false;
     public $dirVendor;
     public $dirRoot;
@@ -41,6 +44,15 @@ class Loader
         }
     }
 
+    private function hook($name, $args = []) {
+        $cli = PHP_SAPI === 'cli';
+        $hook = $this->config[$name] ?? null;
+        
+        if (is_callable($hook) && ($cli || $this->config['always'] === true)) {
+            call_user_func_array($hook, $args);
+        }
+    }
+
     public function setPluginDir(string $path)
     {
         $this->dirPlugin = $path;
@@ -69,19 +81,25 @@ class Loader
 
     public function init()
     {
-        if (!$this->isKirbyLoaded) {
-            require $this->dirRoot . '/kirby/bootstrap.php';
+        if ($bootstrap = realpath($this->dirTests . '/bootstrap.php')) {
+            $config = include_once $bootstrap;
+
+            if (is_array($config)) {
+                $this->config = array_replace_recursive($this->config, $config);
+            }
         }
 
+        if (!$this->isKirbyLoaded) {
+            $this->hook('beforeLoad');
+            require $this->dirRoot . '/kirby/bootstrap.php';
+            $this->hook('afterLoad');
+        }
+
+        $this->hook('beforeInit');
         $instance = new Kirby([
             'roots' => $this->roots
         ]);
-        
-        // Make sure to include the bootstrap script after the instance is
-        // created so it can use kirby() to get access to it.
-        if ($bootstrap = realpath($this->dirTests . '/bootstrap.php')) {
-            include_once $bootstrap;
-        }
+        $this->hook('afterInit', [$instance]);
 
         return $instance;
     }

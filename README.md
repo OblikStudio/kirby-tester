@@ -71,3 +71,29 @@ In your site's _index.php_, you can use it like this:
 require 'kirby/bootstrap.php';
 echo kirbytest('my-plugin')->render();
 ```
+
+### Bootstrap hooks
+
+You can use `tests/bootstrap.php` to do various things at different points of
+the script execution by defining hooks:
+
+```php
+return [
+    'beforeLoad' => function () {
+        echo 'before Kirby vendor autoload';
+    },
+    'afterLoad' => function () {
+        echo 'after Kirby vendor autoload';
+    },
+    'beforeInit' => function () {
+        echo 'before Kirby instance';
+    },
+    'afterInit' => function ($kirby) {
+        echo 'after Kirby instance';
+    }
+];
+```
+
+By default, hooks are run only when PHP is running from the CLI (i.e. when tests
+are running). If you want them to always run, set `always` to `true` inside the
+configuration above.
