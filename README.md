@@ -3,6 +3,10 @@
 Allows you to easily write plugin tests by automatically loading Kirby and
 optionally changing its roots.
 
+## ⚠ Deprecated!
+
+You don't need a plugin to change roots. Your plugin repo could double as a test site for the plugin. Check [Monolithic Plugin Setup](https://getkirby.com/docs/cookbook/setup/monolithic-plugin-setup) for details.
+
 ## Installation
 
 Install the package in either your plugin folder (recommended), or your site folder:
